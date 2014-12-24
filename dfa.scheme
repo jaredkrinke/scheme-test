@@ -1,26 +1,23 @@
-(define (dfa states alphabet f start accepts)
-    (list states alphabet f start accepts))
-(define (dfa-f d) (caddr d))
-(define (dfa-start d) (cadddr d))
-(define (dfa-accepts d) (car (cddddr d)))
-
-(define (dfa-test d string)
+(define (make-dfa states alphabet transition-function start-state accept-states)
     (define (set-contains? set item)
             (cond ((null? set) false)
                   ((eq? (car set) item) true)
                   (else (set-contains? (cdr set) item))))
     (define (accept-state? state)
-            (set-contains? (dfa-accepts d) state))
+            (set-contains? accept-states state))
     (define (dfa-test-iter state string)
             (if (null? string)
                 (accept-state? state)
-                (dfa-test-iter ((dfa-f d) state (car string))
+                (dfa-test-iter (transition-function state (car string))
                                (cdr string))))
+    (define (test string)
+        (dfa-test-iter start-state string))
 
-    (dfa-test-iter (dfa-start d) string))
+    (lambda (message a b c)
+            (cond ((eq? message 'test) (test a)))))
 
 (let (
-      (d (dfa
+      (d (make-dfa
           '(q1 q2 q3)
           '(0 1)
           (lambda (state input)
@@ -35,10 +32,10 @@
           '(q2)))
       )
       
-      (display (dfa-test d '(0))) (newline)
-      (display (dfa-test d '(1 0))) (newline)
-      (display (dfa-test d '(1 0 0))) (newline)
-      (display (dfa-test d '(1 0 0 0))) (newline)
-      (display (dfa-test d '(1 0 0 0 0))) (newline)
+      (display (d 'test '(0))) (newline)
+      (display (d 'test '(1 0))) (newline)
+      (display (d 'test '(1 0 0))) (newline)
+      (display (d 'test '(1 0 0 0))) (newline)
+      (display (d 'test '(1 0 0 0 0))) (newline)
 )
 
